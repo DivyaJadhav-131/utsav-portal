@@ -1,0 +1,19 @@
+# Dependencies and generated builds
+node_modules/
+
+coverage/
+*.tsbuildinfo
+
+# Local secrets; keep the example configuration
+
+
+# Local deployment metadata and logs
+.vercel/
+*.log
+
+# Uploaded event images are runtime data, not source code
+
+
+# Operating system files
+.DS_Store
+Thumbs.db
