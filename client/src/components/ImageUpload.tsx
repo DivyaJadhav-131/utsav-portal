@@ -23,8 +23,8 @@ export function ImageUpload({
       setError('Only JPEG, PNG and WebP images are allowed');
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image must not exceed 5 MB');
+    if (file.size > 4 * 1024 * 1024) {
+      setError('Image must not exceed 4 MB');
       return;
     }
     setError(null);
@@ -81,7 +81,7 @@ export function ImageUpload({
             Click or drag & drop to upload
           </p>
           <p className="text-xs text-gray-400 mt-1">
-            JPEG, PNG, WebP · max 5 MB
+            JPEG, PNG, WebP · max 4 MB
           </p>
         </div>
       )}

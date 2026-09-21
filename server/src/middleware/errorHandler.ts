@@ -12,7 +12,7 @@ export const errorHandler = (
 
   if (err instanceof multer.MulterError) {
     if (err.code === 'LIMIT_FILE_SIZE') {
-      res.status(400).json({ message: 'Image must not exceed 5 MB' });
+      res.status(400).json({ message: 'Image must not exceed 4 MB' });
       return;
     }
     res.status(400).json({ message: err.message });
@@ -24,5 +24,5 @@ export const errorHandler = (
     return;
   }
 
-  res.status(500).json({ message: err.message || 'Internal server error' });
+  res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message || 'Internal server error' });
 };

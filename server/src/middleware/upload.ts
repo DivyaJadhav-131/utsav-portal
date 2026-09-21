@@ -1,20 +1,10 @@
 import multer, { FileFilterCallback } from 'multer';
-import path from 'path';
 import { Request } from 'express';
-import { v4 as uuidv4 } from 'uuid';
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_FILE_SIZE_BYTES = 4 * 1024 * 1024; // Leave room for multipart fields under Vercel's payload limit
 
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, path.join(__dirname, '../../uploads/events'));
-  },
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, `${uuidv4()}${ext}`);
-  },
-});
+const storage = multer.memoryStorage();
 
 const fileFilter = (
   _req: Request,
@@ -31,5 +21,5 @@ const fileFilter = (
 export const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: MAX_FILE_SIZE_BYTES },
+  limits: { fileSize: MAX_FILE_SIZE_BYTES, files: 1, fields: 12, fieldSize: 16 * 1024 },
 });

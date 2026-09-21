@@ -11,7 +11,7 @@ _next) => {
     console.error('[Error]', err.message);
     if (err instanceof multer_1.default.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
-            res.status(400).json({ message: 'Image must not exceed 5 MB' });
+            res.status(400).json({ message: 'Image must not exceed 4 MB' });
             return;
         }
         res.status(400).json({ message: err.message });
@@ -21,6 +21,6 @@ _next) => {
         res.status(400).json({ message: err.message });
         return;
     }
-    res.status(500).json({ message: err.message || 'Internal server error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message || 'Internal server error' });
 };
 exports.errorHandler = errorHandler;

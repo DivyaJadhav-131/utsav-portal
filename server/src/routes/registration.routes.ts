@@ -1,3 +1,4 @@
+import { asyncHandler } from '../utils/asyncHandler';
 import { Router } from 'express';
 import {
   registerForEvent,
@@ -11,9 +12,9 @@ import { authorize } from '../middleware/authorize';
 const router = Router();
 
 // Order matters: /me must come before /:eventId
-router.get('/me', authenticate, authorize('student'), getMyRegistrations);
-router.get('/:eventId/status', authenticate, checkRegistration);
-router.post('/:eventId', authenticate, authorize('student'), registerForEvent);
-router.delete('/:eventId', authenticate, authorize('student'), cancelRegistration);
+router.get('/me', authenticate, authorize('student'), asyncHandler(getMyRegistrations));
+router.get('/:eventId/status', authenticate, asyncHandler(checkRegistration));
+router.post('/:eventId', authenticate, authorize('student'), asyncHandler(registerForEvent));
+router.delete('/:eventId', authenticate, authorize('student'), asyncHandler(cancelRegistration));
 
 export default router;

@@ -1,3 +1,4 @@
+import { asyncHandler } from '../utils/asyncHandler';
 import { Router } from 'express';
 import {
   getEvents,
@@ -13,11 +14,11 @@ import { upload } from '../middleware/upload';
 
 const router = Router();
 
-router.get('/', getEvents);
-router.get('/:id', getEventById);
-router.post('/', authenticate, authorize('admin'), upload.single('image'), createEvent);
-router.put('/:id', authenticate, authorize('admin'), upload.single('image'), updateEvent);
-router.delete('/:id', authenticate, authorize('admin'), deleteEvent);
-router.get('/:id/registrations', authenticate, authorize('admin'), getEventRegistrations);
+router.get('/', asyncHandler(getEvents));
+router.get('/:id', asyncHandler(getEventById));
+router.post('/', authenticate, authorize('admin'), upload.single('image'), asyncHandler(createEvent));
+router.put('/:id', authenticate, authorize('admin'), upload.single('image'), asyncHandler(updateEvent));
+router.delete('/:id', authenticate, authorize('admin'), asyncHandler(deleteEvent));
+router.get('/:id/registrations', authenticate, authorize('admin'), asyncHandler(getEventRegistrations));
 
 export default router;

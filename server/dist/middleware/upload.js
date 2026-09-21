@@ -5,19 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.upload = void 0;
 const multer_1 = __importDefault(require("multer"));
-const path_1 = __importDefault(require("path"));
-const uuid_1 = require("uuid");
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
-const storage = multer_1.default.diskStorage({
-    destination: (_req, _file, cb) => {
-        cb(null, path_1.default.join(__dirname, '../../uploads/events'));
-    },
-    filename: (_req, file, cb) => {
-        const ext = path_1.default.extname(file.originalname).toLowerCase();
-        cb(null, `${(0, uuid_1.v4)()}${ext}`);
-    },
-});
+const MAX_FILE_SIZE_BYTES = 4 * 1024 * 1024; // Leave room for multipart fields under Vercel's payload limit
+const storage = multer_1.default.memoryStorage();
 const fileFilter = (_req, file, cb) => {
     if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
         cb(null, true);
@@ -29,5 +19,5 @@ const fileFilter = (_req, file, cb) => {
 exports.upload = (0, multer_1.default)({
     storage,
     fileFilter,
-    limits: { fileSize: MAX_FILE_SIZE_BYTES },
+    limits: { fileSize: MAX_FILE_SIZE_BYTES, files: 1, fields: 12, fieldSize: 16 * 1024 },
 });

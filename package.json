@@ -1,0 +1,9 @@
+{
+  "name": "utsav",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --prefix server && npm run build --prefix client",
+    "test": "npm run build --prefix server && node --test server/tests/deployment.cjs"
+  }
+}

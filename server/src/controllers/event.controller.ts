@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import Event from '../models/Event';
 import Registration from '../models/Registration';
 import { AuthRequest } from '../middleware/authenticate';
-import { deleteFile } from '../utils/fileCleanup';
+import { saveImage, removeImage } from '../utils/imageStorage';
 import { createEventSchema } from '../validators/event.validator';
 
 export const getEvents = async (req: Request, res: Response): Promise<void> => {
@@ -26,12 +26,11 @@ export const getEventById = async (req: Request, res: Response): Promise<void> =
 export const createEvent = async (req: AuthRequest, res: Response): Promise<void> => {
   const result = createEventSchema.safeParse(req.body);
   if (!result.success) {
-    if (req.file) deleteFile(`events/${req.file.filename}`);
     res.status(400).json({ message: result.error.errors[0].message });
     return;
   }
   const { title, description, dateTime, venue, organizerName, capacity, department } = result.data;
-  const imagePath = req.file ? `events/${req.file.filename}` : null;
+  const imagePath = req.file ? await saveImage(req.file) : null;
 
   const event = await Event.create({
     title,
@@ -43,6 +42,9 @@ export const createEvent = async (req: AuthRequest, res: Response): Promise<void
     capacity: capacity ?? null,
     imagePath,
     createdBy: req.user!.userId,
+  }).catch(async error => {
+    await removeImage(imagePath).catch(() => undefined);
+    throw error;
   });
 
   res.status(201).json(event);
@@ -51,25 +53,20 @@ export const createEvent = async (req: AuthRequest, res: Response): Promise<void
 export const updateEvent = async (req: AuthRequest, res: Response): Promise<void> => {
   const event = await Event.findById(req.params.id);
   if (!event) {
-    if (req.file) deleteFile(`events/${req.file.filename}`);
     res.status(404).json({ message: 'Event not found' });
     return;
   }
 
   const result = createEventSchema.safeParse(req.body);
   if (!result.success) {
-    if (req.file) deleteFile(`events/${req.file.filename}`);
     res.status(400).json({ message: result.error.errors[0].message });
     return;
   }
 
   const { title, description, dateTime, venue, organizerName, capacity, department } = result.data;
 
-  // Replace image if a new one was uploaded, deleting the old file
-  if (req.file) {
-    deleteFile(event.imagePath);
-    event.imagePath = `events/${req.file.filename}`;
-  }
+  const previousImage = event.imagePath;
+  if (req.file) event.imagePath = await saveImage(req.file);
 
   if (department !== undefined) event.department = department;
   event.title = title;
@@ -79,7 +76,12 @@ export const updateEvent = async (req: AuthRequest, res: Response): Promise<void
   event.organizerName = organizerName;
   event.capacity = capacity ?? null;
 
-  await event.save();
+  try { await event.save(); }
+  catch (error) {
+    if (req.file) await removeImage(event.imagePath).catch(() => undefined);
+    throw error;
+  }
+  if (req.file) await removeImage(previousImage).catch(() => undefined);
   res.json(event);
 };
 
@@ -89,9 +91,9 @@ export const deleteEvent = async (req: AuthRequest, res: Response): Promise<void
     res.status(404).json({ message: 'Event not found' });
     return;
   }
-  deleteFile(event.imagePath);
   await Registration.deleteMany({ event: event._id });
   await event.deleteOne();
+  await removeImage(event.imagePath).catch(() => undefined);
   res.json({ message: 'Event deleted successfully' });
 };
 
