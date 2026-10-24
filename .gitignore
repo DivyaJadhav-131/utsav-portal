@@ -19,3 +19,10 @@ coverage/
 Thumbs.db
 
 # Build outputs and local credentials
+
+# Local pre-refactor backup archive
+utsav-backup-before-simplification.zip
+client-before-structure-refactor.zip
+
+
+.env

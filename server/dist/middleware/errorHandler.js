@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.errorHandler = void 0;
 const multer_1 = __importDefault(require("multer"));
 const errorHandler = (err, _req, res, 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// Express requires the four-argument shape to identify error middleware.
 _next) => {
     console.error('[Error]', err.message);
     if (err instanceof multer_1.default.MulterError) {

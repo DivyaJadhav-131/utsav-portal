@@ -16,6 +16,9 @@ function connectDatabase() {
         connection = mongoose_1.default.connect(uri || 'mongodb://127.0.0.1:27017/college_events', {
             serverSelectionTimeoutMS: 10000,
             maxPoolSize: 5,
+        }).then(() => {
+            console.log(`Connected to MongoDB database: ${mongoose_1.default.connection.name}`);
+            return mongoose_1.default;
         }).catch(error => { connection = undefined; throw error; });
     }
     return connection;
